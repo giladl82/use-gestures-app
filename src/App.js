@@ -3,11 +3,36 @@ import logo from './logo.svg';
 import './App.css';
 
 class Pointer {
-  constructor(touches) {
-    this.x = touches.clientX;
-    this.y = touches.clientY;
+  /**
+   * 
+   * @param {{clientX:number, clientY: number}} touch event touch object
+   */
+  constructor(touch) {
+    this.x = touch.clientX;
+    this.y = touch.clientY;
   }
 }
+
+  /**
+     *
+     * @param {{x: number, y: number}} p1
+     * @param {{x: number, y: number}} p2
+     */
+    const getDistance = (p1, p2) => {
+      const powX = Math.pow(p1.x - p2.x, 2);
+      const powY = Math.pow(p1.y - p2.y, 2);
+
+      return Math.sqrt(powX + powY);
+    };
+
+    /**
+     *
+     * @param {{x: number, y: number}} p1
+     * @param {{x: number, y: number}} p2
+     */
+    const getAngleDeg = (p1, p2) => {
+      return (Math.atan2(p1.y - p2.y, p1.x - p2.x) * 180) / Math.PI;
+    };
 
 /**
  * 
@@ -72,27 +97,6 @@ function useGestures(
           angleDeg: prevTouch ? getAngleDeg(pointer, prevTouch) : 0
         };
       }
-    };
-
-    /**
-     *
-     * @param {{x: number, y: number}} p1
-     * @param {{x: number, y: number}} p2
-     */
-    const getDistance = (p1, p2) => {
-      const powX = Math.pow(p1.x - p2.x, 2);
-      const powY = Math.pow(p1.y - p2.y, 2);
-
-      return Math.sqrt(powX + powY);
-    };
-
-    /**
-     *
-     * @param {{x: number, y: number}} p1
-     * @param {{x: number, y: number}} p2
-     */
-    const getAngleDeg = (p1, p2) => {
-      return (Math.atan2(p1.y - p2.y, p1.x - p2.x) * 180) / Math.PI;
     };
 
     const callHandler = (eventName, event) => {
