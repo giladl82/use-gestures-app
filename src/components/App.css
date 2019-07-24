@@ -1,0 +1,67 @@
+.app {
+  text-align: center;
+  padding: 0 20px;
+  max-width: 480px;
+}
+
+.header {
+  display: block;
+  padding-bottom: 5px;
+}
+
+.section {
+  text-align: left;
+  border-bottom: solid 1px #eee;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.logo {
+  display: block;
+  margin: auto;
+  
+}
+
+.toggle-button {
+  font-size: 18px;
+  display: inline-block;
+  margin-right: 10px;
+  color: #666;
+}
+
+.description {
+  font-size: 14px;
+}
+
+.code {
+  margin: 10px 0;
+  padding: 10px;
+  background-color: #ddd;
+  font-size: 7px;
+  display: block;
+}
+
+.log {
+  overflow: auto;
+  line-height: 1.5rem;
+  height: 200px;
+  border: solid #666;
+  padding: 5px;
+}
+
+.gallery {
+  width: 128px;
+  overflow: hidden;
+  margin: auto;
+  border: solid 1px;
+  box-sizing: border-box;
+}
+
+.gallery__images {
+  display: flex;
+  transform: translateX(0);
+  transition: transform 0.5s ease;
+}

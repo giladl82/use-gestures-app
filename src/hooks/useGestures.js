@@ -1,10 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState, useRef } from 'react';
 
 class Pointer {
   /**
-   * 
+   *
    * @param {{clientX:number, clientY: number}} touch event touch object
    */
   constructor(touch) {
@@ -13,26 +11,35 @@ class Pointer {
   }
 }
 
-  /**
-     *
-     * @param {{x: number, y: number}} p1
-     * @param {{x: number, y: number}} p2
-     */
-    const getDistance = (p1, p2) => {
-      const powX = Math.pow(p1.x - p2.x, 2);
-      const powY = Math.pow(p1.y - p2.y, 2);
+const debounce = (func, wait) => {
+  let timeout;
+  return function(...args) {
+    const context = this;
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(context, args), wait);
+  };
+};
 
-      return Math.sqrt(powX + powY);
-    };
+/**
+ *
+ * @param {{x: number, y: number}} p1
+ * @param {{x: number, y: number}} p2
+ */
+const getDistance = (p1, p2) => {
+  const powX = Math.pow(p1.x - p2.x, 2);
+  const powY = Math.pow(p1.y - p2.y, 2);
 
-    /**
-     *
-     * @param {{x: number, y: number}} p1
-     * @param {{x: number, y: number}} p2
-     */
-    const getAngleDeg = (p1, p2) => {
-      return (Math.atan2(p1.y - p2.y, p1.x - p2.x) * 180) / Math.PI;
-    };
+  return Math.sqrt(powX + powY);
+};
+
+/**
+ *
+ * @param {{x: number, y: number}} p1
+ * @param {{x: number, y: number}} p2
+ */
+const getAngleDeg = (p1, p2) => {
+  return (Math.atan2(p1.y - p2.y, p1.x - p2.x) * 180) / Math.PI;
+};
 
 /**
  * 
@@ -54,10 +61,10 @@ class Pointer {
     onPinchEnd: function,
     }} handlers 
  * @param {{
-    minDelta: number
-  }} options 
- */
-function useGestures(
+  minDelta: number
+}} options 
+*/
+export default function useGestures(
   ref,
   handlers,
   options = {
@@ -67,21 +74,25 @@ function useGestures(
   const [touches, setTouches] = useState(null);
   const [gesture, setGesture] = useState('');
 
+  const initialTouches = useRef(null);
+
   useEffect(() => {
     const element = ref.current;
 
-    const getCurrentTouches = (target, touches, prevTouch) => {
+    const getCurrentTouches = (originalEvent, touches, prevTouch) => {
+      const firstTouch = initialTouches.current;
+
       if (touches.length === 2) {
         const pointer1 = new Pointer(touches[0]);
         const pointer2 = new Pointer(touches[1]);
 
         const distance = getDistance(pointer1, pointer2);
-
         return {
-          target,
+          preventDefault: originalEvent.preventDefault,
+          stopPropagation: originalEvent.stopPropagation,
           pointers: [pointer1, pointer2],
           delta: prevTouch ? distance - prevTouch.distance : 0,
-          scale: prevTouch ? distance / options.minDelta : 1,
+          scale: firstTouch ? distance / firstTouch.distance : 1,
           distance,
           angleDeg: getAngleDeg(pointer1, pointer2)
         };
@@ -89,11 +100,13 @@ function useGestures(
         const pointer = new Pointer(touches[0]);
 
         return {
-          target,
+          preventDefault: originalEvent.preventDefault,
+          stopPropagation: originalEvent.stopPropagation,
           ...pointer,
           deltaX: prevTouch ? pointer.x - prevTouch.x : 0,
           deltaY: prevTouch ? pointer.y - prevTouch.y : 0,
-          distance: prevTouch ? getDistance(pointer, prevTouch) : 0,
+          delta: prevTouch ? getDistance(pointer, prevTouch) : 0,
+          distance: firstTouch ? getDistance(pointer, firstTouch) : 0,
           angleDeg: prevTouch ? getAngleDeg(pointer, prevTouch) : 0
         };
       }
@@ -106,8 +119,9 @@ function useGestures(
     };
 
     const handleTouchStart = event => {
-      const currentTouches = getCurrentTouches(event.target, event.touches, null);
+      const currentTouches = getCurrentTouches(event, event.touches, null);
       setTouches(currentTouches);
+      initialTouches.current = currentTouches;
 
       if (event.touches.length === 2) {
         callHandler('onPinchStart', currentTouches);
@@ -117,7 +131,7 @@ function useGestures(
     };
 
     const handleTouchMove = event => {
-      const currentTouches = getCurrentTouches(event.target, event.touches, touches);
+      const currentTouches = getCurrentTouches(event, event.touches, touches);
       setTouches(currentTouches);
 
       if (event.touches.length === 2) {
@@ -150,13 +164,18 @@ function useGestures(
           theGesture = '';
         }
 
-        callHandler(eventName, touches);
-        setGesture(theGesture);
+        if (eventName) {
+          debounce((eventName, touches, theGesture) => {
+            callHandler(eventName, touches);
+            setGesture(theGesture);
+          }, 100)(eventName, touches, theGesture);
+
+        }
       }
     };
 
     const handleTouchEnd = event => {
-      const currentTouches = getCurrentTouches(event.target, event.changedTouches, null);
+      const currentTouches = getCurrentTouches(event, event.changedTouches, null);
       if (touches && touches.pointers) {
         if (touches.pointers.length === 2) {
           callHandler('onPinchEnd', currentTouches);
@@ -180,74 +199,3 @@ function useGestures(
     };
   });
 }
-
-function App() {
-  const [imageScale, setImageScale] = useState(1);
-  const [imageRotation, setImageRotation] = useState(0);
-  const image = useRef(null);
-  const div = useRef(null);
-
-  useGestures(image, {
-    onPanStart: event => console.log('image pan start handler', event),
-    onPanMove: event => {
-      // console.log('image pan move handler', event);
-      setImageRotation(event.angleDeg);
-    },
-    onSwipeLeft:  event => {
-      console.log('image swipe left handler', event);
-      event.target.style = 'transform: translateX(' + event.deltaX * 2 + 'px)';
-    },
-    onSwipeRight: event => {
-      console.log('image swipe right handler', event);
-      event.target.style = 'transform: translateX(' + event.deltaX * 2 + 'px)';
-    },
-    onSwipeUp: event => console.log('image swipe up handler', event),
-    onSwipeDown: event => console.log('image swipe down handler', event),
-    onPanEnd: event => console.log('image pan end handler', event),
-    onSwipeLeftEnd: event => {
-      console.log('image swipe left end handler', event)
-      setTimeout(() => {
-        event.target.style = 'transform: translateX(0)';
-      }, 1000);
-    },
-    onSwipeRightEnd: event => {
-      console.log('image swipe right end handler', event);
-      setTimeout(() => {
-        event.target.style = 'transform: translateX(0)';
-      }, 1000);
-    },
-    onSwipeUpEnd: event => console.log('image swipe up end handler', event),
-    onSwipeDownEnd: event => console.log('image swipe down end handler', event),
-    onPinchStart: event => console.log('image pinch start handler', event),
-    onPinchChanged: event => {
-      console.log('image pinch handler', event);
-      // event.target.style = 'transform: scale(' + event.scale + ')';
-      setImageScale(event.scale);
-      setImageRotation(event.angleDeg);
-    },
-    onPinchEnd: event => {
-      console.log('image pinch end handler', event);
-      setImageScale(1);
-      setImageRotation(0);
-    }
-  });
-
-  useGestures(div, {
-    onSwipeLeft: event => console.log('div swipe left handler', event),
-    onSwipeRight: event => console.log('div swipe right handler', event)
-  });
-
-  return (
-    <div className='App'>
-      <img
-        ref={image}
-        src={logo}
-        alt='logo'
-        style={{ width: 360, transform: `scale(${imageScale}) rotate(${imageRotation}deg)` }}
-      />
-      <div ref={div} style={{ width: 360, height: 160, backgroundColor: 'blue', margin: '10px auto' }} />
-    </div>
-  );
-}
-
-export default App;
