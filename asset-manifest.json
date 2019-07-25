@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/use-gestures-app/static/css/main.405b1edc.chunk.css",
+    "main.js": "/use-gestures-app/static/js/main.f18ae69b.chunk.js",
+    "main.js.map": "/use-gestures-app/static/js/main.f18ae69b.chunk.js.map",
+    "runtime~main.js": "/use-gestures-app/static/js/runtime~main.3d00b3b6.js",
+    "runtime~main.js.map": "/use-gestures-app/static/js/runtime~main.3d00b3b6.js.map",
+    "static/js/2.3b587ebb.chunk.js": "/use-gestures-app/static/js/2.3b587ebb.chunk.js",
+    "static/js/2.3b587ebb.chunk.js.map": "/use-gestures-app/static/js/2.3b587ebb.chunk.js.map",
+    "index.html": "/use-gestures-app/index.html",
+    "precache-manifest.3c30165ee8efad7757a4736d535bf5c2.js": "/use-gestures-app/precache-manifest.3c30165ee8efad7757a4736d535bf5c2.js",
+    "service-worker.js": "/use-gestures-app/service-worker.js",
+    "static/css/main.405b1edc.chunk.css.map": "/use-gestures-app/static/css/main.405b1edc.chunk.css.map",
+    "static/media/logo.svg": "/use-gestures-app/static/media/logo.5d5d9eef.svg"
+  }
+}
