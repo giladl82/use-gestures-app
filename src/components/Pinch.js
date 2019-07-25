@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import logo from './logo.svg';
-import useGestures from '../hooks/useGestures';
+import useGestures from 'use-gestures';
 
 export default function Rotate({onToggle, isActive}) {
   const [imageScale, setImageScale] = useState(1);

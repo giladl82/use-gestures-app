@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import logo from './img1.png';
-import useGestures from '../hooks/useGestures';
+import useGestures from 'use-gestures';
 
 export default function Rotate({ onToggle, isActive }) {
   const [imageRotation, setImageRotation] = useState(0);

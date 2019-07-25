@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import logo from './img2.png';
-import useGestures from '../hooks/useGestures';
+import useGestures from 'use-gestures'
 
 export default function Pan({ onToggle, isActive }) {
   const [log, setLog] = useState('Pan log:');
